@@ -15,7 +15,9 @@ class CustomerApi {
       List<dynamic> customersJson = jsonResponse['customers'];
       return customersJson.map((item) => Customer.fromJson(item)).toList();
     } else {
-      throw Exception('Failed to load customers from API');
+      throw Exception(
+        'Failed to load customers from API. Error: ${response.body}',
+      );
     }
   }
 }
