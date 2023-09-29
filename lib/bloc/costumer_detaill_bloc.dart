@@ -1,55 +1,45 @@
 import 'package:flutter/material.dart';
 
-import '../models/address.dart';
 import '../models/customer.dart';
 
-class CustomerDetailBloc {
-  late final Customer customer;
-  late List<bool> isEditingList;
-  late List<String> addressStrList;
-  late String customerName;
-  late TextEditingController _nameController;
-  late List<TextEditingController> _addressListController;
+abstract class ICustomerDetailBloc {
+  TextEditingController getNameController();
+  List<TextEditingController> addressListController();
+  bool isEditing(int index);
+  void toggleEditing(int index);
+}
+
+class CustomerDetailBloc implements ICustomerDetailBloc {
+  final Customer customer;
+  late List<TextEditingController> _controllers;
+  late List<bool> _isEditingList;
 
   CustomerDetailBloc(this.customer) {
-    List<Address> addressList = customer.addressList;
-
-    isEditingList = List<bool>.filled(
-      addressList.length + 1,
-      false,
-    );
-
-    addressStrList = List<String>.filled(
-      addressList.length,
-      "",
-    );
-
-    _addressListController = [];
-
-    for (var i = 0; i < customer.addressList.length; i++) {
-      addressStrList[i] = addressList[i].getFullAddress();
-      _addressListController.add(
-        TextEditingController(
-          text: addressStrList[i],
-        ),
-      );
-    }
-
-    customerName = customer.name;
-    _nameController = TextEditingController(
-      text: customerName,
-    );
+    _controllers = [
+      TextEditingController(text: customer.name),
+      ...customer.addressList
+          .map((address) => TextEditingController(text: address.city)),
+    ];
+    _isEditingList = List.filled(_controllers.length, false);
   }
 
-  void toggleEditing(int index) {
-    isEditingList[index] = !isEditingList[index];
-  }
-
+  @override
   TextEditingController getNameController() {
-    return _nameController;
+    return _controllers[0];
   }
 
+  @override
   List<TextEditingController> addressListController() {
-    return _addressListController;
+    return _controllers.sublist(1);
+  }
+
+  @override
+  bool isEditing(int index) {
+    return _isEditingList[index];
+  }
+
+  @override
+  void toggleEditing(int index) {
+    _isEditingList[index] = !_isEditingList[index];
   }
 }

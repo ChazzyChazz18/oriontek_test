@@ -19,3 +19,14 @@ class CustomerApi {
     }
   }
 }
+
+abstract class ICustomerApi {
+  Future<List<Customer>> getCustomers();
+}
+
+class StandartCustomerApi implements ICustomerApi {
+  @override
+  Future<List<Customer>> getCustomers() {
+    return CustomerApi().getCustomers();
+  }
+}

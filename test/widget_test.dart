@@ -15,7 +15,7 @@ void main() {
       (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MaterialApp(
-      home: MyHomePage(title: 'Home'),
+      home: HomePage(title: 'Home'),
     ));
 
     // Verify that our widget has a title.

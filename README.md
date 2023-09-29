@@ -11,9 +11,9 @@ Right now it handles:
 - fetch customers data from an API
 - show the list of customers
 - acess to the detail of a customer
-- edit customer information (even though it does not let you do the actual edit)
+- edit customer information (pending)
 
 Also:
 
-- it was done trying to fulfill the SOLID principles and Clean Code
+- it was done with the SOLID principles and Clean Code in mind
 - it has a structured file organization

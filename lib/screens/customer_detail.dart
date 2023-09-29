@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../bloc/costumer_detaill_bloc.dart';
 import '../models/customer.dart';
+import '../widgets/custom_field_text.dart';
 
 class CustomerDetail extends StatefulWidget {
   const CustomerDetail({
@@ -18,39 +19,12 @@ class CustomerDetail extends StatefulWidget {
 }
 
 class _CustomerDetailState extends State<CustomerDetail> {
-  late CustomerDetailBloc bloc;
+  late ICustomerDetailBloc bloc;
 
   @override
   void initState() {
     super.initState();
     bloc = CustomerDetailBloc(widget.customer);
-  }
-
-  Widget fieldText(String label, TextEditingController controller,
-      bool isEditing, VoidCallback toggleEditing) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              enabled: isEditing,
-              decoration: InputDecoration(
-                labelText: label,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.edit,
-              color: Colors.grey,
-            ),
-            onPressed: toggleEditing,
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -59,44 +33,58 @@ class _CustomerDetailState extends State<CustomerDetail> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Hero(
-                tag: "userImg ${widget.customer.id}",
-                child: const Icon(
-                  Icons.account_circle,
-                  color: Colors.grey,
-                  size: 82,
-                ),
-              ),
-              fieldText("Name", bloc.getNameController(), bloc.isEditingList[0],
-                  () {
-                setState(() {
-                  bloc.toggleEditing(0);
-                });
-              }),
-              const SizedBox(height: 32),
-              ...List<Widget>.generate(
-                widget.customer.addressList.length,
-                (index) => fieldText(
-                  "Address ${index + 1}",
-                  bloc.addressListController()[index],
-                  bloc.isEditingList[index + 1],
-                  () {
-                    setState(() {
-                      bloc.toggleEditing(index + 1);
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
+      body: body(),
+    );
+  }
+
+  Widget body() {
+    return SingleChildScrollView(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: buildChildren(),
         ),
       ),
     );
+  }
+
+  List<Widget> buildChildren() {
+    List<Widget> children = [
+      Hero(
+        tag: "userImg ${widget.customer.id}",
+        child: const Icon(
+          Icons.account_circle,
+          color: Colors.grey,
+          size: 82,
+        ),
+      ),
+      CustomFieldText(
+        label: "Name",
+        controller: bloc.getNameController(),
+        isEditing: bloc.isEditing(0),
+        toggleEditing: () {
+          setState(() {
+            bloc.toggleEditing(0);
+          });
+        },
+      ),
+      const SizedBox(height: 32),
+    ];
+
+    for (int i = 0; i < widget.customer.addressList.length; i++) {
+      children.add(CustomFieldText(
+        label: "Address ${i + 1}",
+        controller: bloc.addressListController()[i],
+        isEditing: bloc.isEditing(i + 1),
+        toggleEditing: () {
+          setState(() {
+            bloc.toggleEditing(i + 1);
+          });
+        },
+      ));
+    }
+
+    return children;
   }
 }
