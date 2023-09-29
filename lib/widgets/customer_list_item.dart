@@ -14,15 +14,22 @@ class CustomerListItem extends StatelessWidget {
     required this.length,
   }) : super(key: key);
 
+  EdgeInsets getPadding(int index, int length) {
+    final double topPadding = index == 0 ? 8 : 4;
+    final double bottomPadding = index == length - 1 ? 8 : 4;
+
+    return EdgeInsets.only(
+      top: topPadding,
+      left: 8,
+      right: 8,
+      bottom: bottomPadding,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        top: index == 0 ? 8 : 4,
-        left: 8,
-        right: 8,
-        bottom: index == length - 1 ? 8 : 4,
-      ),
+      padding: getPadding(index, length),
       child: Material(
         elevation: 1.0,
         child: ListTile(

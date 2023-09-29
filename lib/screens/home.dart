@@ -5,7 +5,10 @@ import '../models/customer.dart';
 import '../widgets/customer_list_item.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
+  const HomePage({
+    super.key,
+    required this.title,
+  });
 
   final String title;
 
