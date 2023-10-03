@@ -164,15 +164,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildListView(List<Customer> customers) {
+    var customerListReversed = customers.reversed.toList();
     return ListView.builder(
-      itemCount: customers.length,
-      reverse: true,
+      itemCount: customerListReversed.length,
       itemBuilder: (context, index) {
         return CustomerListItem(
           screenTitle: widget.title,
-          customer: customers[index],
+          customer: customerListReversed[index],
           index: index,
-          length: customers.length,
+          length: customerListReversed.length,
           customerDeleteApi: customerDeleteApi,
         );
       },
