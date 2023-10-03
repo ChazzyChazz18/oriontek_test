@@ -9,6 +9,8 @@ This project is a simple app that shows a list of customers fetched from an API 
 Right now it handles:
 
 - fetch customers data from an API
+- Add a new customer as needed (only can set the name, address are random)
+- Delete an existing customer
 - show the list of customers
 - acess to the detail of a customer
 - edit customer information (pending)

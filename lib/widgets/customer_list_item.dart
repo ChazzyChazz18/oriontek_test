@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import '../apis/customer_api.dart';
 import '../models/customer.dart';
 import '../screens/customer_detail.dart';
+import '../screens/home.dart';
 
 class CustomerListItem extends StatelessWidget {
+  final String screenTitle;
   final Customer customer;
   final int index;
   final int length;
+  final IDeleteCustomerApi customerDeleteApi;
 
   const CustomerListItem({
     Key? key,
     required this.index,
     required this.customer,
     required this.length,
+    required this.customerDeleteApi,
+    required this.screenTitle,
   }) : super(key: key);
 
   EdgeInsets getPadding(int index, int length) {
@@ -45,19 +51,46 @@ class CustomerListItem extends StatelessWidget {
           subtitle: Text(
             customer.addressList[0].city,
           ),
-          trailing: IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CustomerDetail(
-                    title: "Detail",
-                    customer: customer,
-                  ),
-                ),
-              );
-            },
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CustomerDetail(
+                        title: "Detail",
+                        customer: customer,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  customerDeleteApi
+                      .deleteCustomer(
+                    id: customer.id,
+                  )
+                      .then((value) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(
+                          title: screenTitle,
+                        ),
+                      ),
+                    );
+                    final snackBar = SnackBar(
+                        content: Text('Customer: ${customer.name} deleted!'));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  });
+                },
+              ),
+            ],
           ),
         ),
       ),

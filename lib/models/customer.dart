@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'address.dart';
 
 class Customer {
@@ -12,11 +14,14 @@ class Customer {
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) {
-    var addressListFromJson = json['addressList'] as List;
-    List<Address> addressList =
-        addressListFromJson.map((i) => Address.fromJson(i)).toList();
+    List<Address> addressList = [];
+    var addressListFromJson = jsonDecode(json['addressList']);
+    addressList = addressListFromJson
+        .map((i) => Address.fromJson(i))
+        .toList()
+        .cast<Address>();
     return Customer(
-      id: json['id'],
+      id: json['_id'],
       name: json['name'],
       addressList: addressList,
     );

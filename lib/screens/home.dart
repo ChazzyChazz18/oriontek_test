@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:oriontek_test/models/address.dart';
 
 import '../apis/customer_api.dart';
 import '../models/customer.dart';
@@ -18,12 +21,104 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Customer> customerList = [];
-  late ICustomerApi customerApi;
+  late IGetCustomerApi customerGetApi;
+  late IAddCustomerApi customerAddApi;
+  late IDeleteCustomerApi customerDeleteApi;
+  late TextEditingController customerNameController;
 
   @override
   void initState() {
     super.initState();
-    customerApi = StandartCustomerApi();
+
+    customerNameController = TextEditingController();
+
+    // Getting all customers
+    customerGetApi = StandartCustomerGetApi();
+
+    // Add a new customer
+    customerAddApi = StandartCustomerAddApi();
+
+    // Deleting an existing customer
+    customerDeleteApi = StandartCustomerDeleteApi();
+  }
+
+  void showAddCustomerModal() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add new Customer!'),
+          content: TextField(
+            controller: customerNameController,
+            decoration: const InputDecoration(
+              labelText: "Customer Name",
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Save'),
+              onPressed: () => saveCustomer(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void saveCustomer() {
+    // We get the string from the textfield
+    String customerName = customerNameController.text;
+
+    // This whole process is to add a random number of address
+    List<Address> addressToAddList = [];
+
+    String customerAddressID =
+        DateTime.now().millisecondsSinceEpoch.toString().substring(10, 13);
+
+    final random = Random();
+    int numberOfAddress = random.nextInt(5) + 1;
+
+    for (int i = 0; i < numberOfAddress; i++) {
+      addressToAddList.add(Address(
+        country: "country $customerAddressID",
+        city: "city $customerAddressID",
+        street: "street $customerAddressID",
+        houseNumber: "houseNumber $customerAddressID",
+      ));
+    }
+
+    // Here we send our add request to the endpoint
+    customerAddApi
+        .addCustomer(
+          name: customerName,
+          addressList: addressToAddList,
+        )
+        .then(
+          (value) => onAddCustomerSuccessfull(customerName),
+        );
+  }
+
+  void onAddCustomerSuccessfull(String customerName) {
+    // Here we show we just added a new customer
+    final snackBar = SnackBar(
+      content: Text('Customer: $customerName added!'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    // Here we refresh the screen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomePage(
+          title: widget.title,
+        ),
+      ),
+    );
   }
 
   @override
@@ -31,6 +126,14 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              showAddCustomerModal();
+            },
+          ),
+        ],
       ),
       body: bodyWidget(),
     );
@@ -45,7 +148,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildFutureBuilder() {
     return FutureBuilder<List<Customer>>(
-      future: customerApi.getCustomers(),
+      future: customerGetApi.getCustomers(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return buildListView(snapshot.data!);
@@ -63,11 +166,14 @@ class _HomePageState extends State<HomePage> {
   Widget buildListView(List<Customer> customers) {
     return ListView.builder(
       itemCount: customers.length,
+      reverse: true,
       itemBuilder: (context, index) {
         return CustomerListItem(
+          screenTitle: widget.title,
           customer: customers[index],
           index: index,
           length: customers.length,
+          customerDeleteApi: customerDeleteApi,
         );
       },
     );
