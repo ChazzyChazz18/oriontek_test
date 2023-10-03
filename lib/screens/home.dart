@@ -151,7 +151,19 @@ class _HomePageState extends State<HomePage> {
       future: customerGetApi.getCustomers(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return buildListView(snapshot.data!);
+          if (snapshot.data!.isNotEmpty) {
+            return buildListView(snapshot.data!);
+          } else {
+            return const Center(
+              child: Text(
+                "There are no users registered... \nBut you can add one on the plus button on the top right corner!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+            );
+          }
         } else if (snapshot.hasError) {
           return Text("${snapshot.error}");
         }
